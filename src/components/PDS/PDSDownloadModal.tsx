@@ -50,7 +50,7 @@ export function PDSDownloadModal({ isOpen, onClose, pdsId }: PDSDownloadModalPro
       if (selectedFormat === 'excel') {
         // Excel filename from backend Content-Disposition header
         const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = 'PDS_2025.xlsx'; // fallback
+        let filename = 'CS_Form_212_LASTNAME_FIRSTNAME_2025.xlsx'; // fallback
 
         if (contentDisposition) {
           // Use non-greedy regex to avoid capturing quotes
@@ -61,7 +61,8 @@ export function PDSDownloadModal({ isOpen, onClose, pdsId }: PDSDownloadModalPro
         }
         link.download = filename;
       } else {
-        link.download = `PDS_${selectedFormat === 'csc' ? 'CSC' : 'Modern'}_${new Date().toISOString().split('T')[0]}.pdf`;
+        const formatLabel = selectedFormat === 'csc' ? 'BoxBased' : 'Simple';
+        link.download = `PDS_${formatLabel}_LASTNAME_FIRSTNAME_2025.pdf`;
       }
 
       document.body.appendChild(link);
@@ -111,12 +112,12 @@ export function PDSDownloadModal({ isOpen, onClose, pdsId }: PDSDownloadModalPro
                   }`} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Official CSC PDS Form 2025</h4>
+                  <h4 className="font-semibold text-gray-900">JobSync: Box-based PDS Form (PDF)</h4>
                   <p className="text-xs text-gray-600 mt-1">
-                    CS Form 212, Revised 2025
+                    Box Layout Format
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Official government format
+                    Structured box-based design
                   </p>
                 </div>
                 {selectedFormat === 'csc' && (
@@ -147,7 +148,7 @@ export function PDSDownloadModal({ isOpen, onClose, pdsId }: PDSDownloadModalPro
                 <div>
                   <h4 className="font-semibold text-gray-900">JobSync: Simple PDS Form (PDF)</h4>
                   <p className="text-xs text-gray-600 mt-1">
-                    Clean & Modern Layout
+                    Modern Layout
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
                     Streamlined table design
@@ -179,12 +180,12 @@ export function PDSDownloadModal({ isOpen, onClose, pdsId }: PDSDownloadModalPro
                   }`} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Official Excel 2025</h4>
+                  <h4 className="font-semibold text-gray-900">Official CSC PDS Form 2025</h4>
                   <p className="text-xs text-gray-600 mt-1">
-                    CS Form 212 Excel
+                    CS Form 212, Revised 2025
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Editable CSC format
+                    Official government format
                   </p>
                 </div>
                 {selectedFormat === 'excel' && (
@@ -230,14 +231,14 @@ export function PDSDownloadModal({ isOpen, onClose, pdsId }: PDSDownloadModalPro
         {/* Format Description */}
         <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <h4 className="text-sm font-semibold text-gray-900 mb-2">
-            {selectedFormat === 'csc' ? 'Official CSC PDF Format' : selectedFormat === 'excel' ? 'Official Excel 2025 Format' : 'Modern PDF Format'}
+            {selectedFormat === 'csc' ? 'JobSync: Box-based PDS Form (PDF)' : selectedFormat === 'excel' ? 'Official CSC PDS Form 2025' : 'JobSync: Simple PDS Form (PDF)'}
           </h4>
           <p className="text-xs text-gray-600">
             {selectedFormat === 'csc'
-              ? 'This format replicates the official CS Form No. 212, Revised 2025 with box-based layout. Recommended for submission to government panels and HR offices requiring CSC compliance.'
+              ? 'Box-based layout format with structured sections. Provides a traditional form-style presentation with clearly defined boxes and fields. Ideal for formal submissions and traditional document formats.'
               : selectedFormat === 'excel'
-              ? 'Downloads the official CS Form No. 212, Revised 2025 as an EMPTY editable Excel template (.xlsx). Fill it out manually in Excel/LibreOffice with complete control over formatting. Guaranteed 100% CSC format compliance. Filename: CS_Form_212_LASTNAME_FIRSTNAME_2025.xlsx'
-              : 'This format uses a modern, clean table-based design optimized for readability. Ideal for internal reviews, portfolio purposes, and digital archiving.'}
+              ? 'Official government format (CS Form No. 212, Revised 2025). Recommended for submission to government panels and HR offices requiring CSC compliance.'
+              : 'Streamlined table-based design optimized for readability. Clean layout ideal for internal reviews, portfolio purposes, and digital archiving.'}
           </p>
         </div>
 

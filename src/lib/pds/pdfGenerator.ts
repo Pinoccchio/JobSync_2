@@ -4,8 +4,9 @@ import { PDSData } from '@/types/pds.types';
 import { formatDateOnly } from '@/lib/utils/dateFormatters';
 
 /**
- * Generate a PDF document from PDS data
- * Based on CS Form No. 212, Revised 2025
+ * Generate JobSync: Simple PDS Form (PDF) document from PDS data
+ * Streamlined table-based design based on CS Form No. 212, Revised 2025
+ * Clean layout optimized for readability
  * @param pdsData - The PDS data to export
  * @param includeSignature - Whether to include the digital signature image (default: false)
  * @param returnDoc - Whether to return the document instead of auto-downloading (default: false)
@@ -711,9 +712,9 @@ export async function generatePDSPDF(pdsData: Partial<PDSData>, includeSignature
   }
 
   // Otherwise, generate filename and auto-download
-  const surname = pdsData.personalInfo?.surname || 'Unknown';
-  const firstName = pdsData.personalInfo?.firstName || 'User';
-  const fileName = `PDS_${surname}_${firstName}_${new Date().getTime()}.pdf`;
+  const surname = (pdsData.personalInfo?.surname || 'Unknown').toUpperCase().replace(/\s+/g, '_');
+  const firstName = (pdsData.personalInfo?.firstName || 'User').toUpperCase().replace(/\s+/g, '_');
+  const fileName = `PDS_Simple_${surname}_${firstName}_2025.pdf`;
 
   // Save the PDF
   doc.save(fileName);

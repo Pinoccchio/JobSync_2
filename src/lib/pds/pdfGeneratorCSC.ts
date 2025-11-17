@@ -4,9 +4,9 @@ import { formatDateOnly } from '@/lib/utils/dateFormatters';
 import { ensureArray } from '@/lib/utils/dataTransformers';
 
 /**
- * Generate a CSC-compliant PDF document from PDS data
- * Exact replica of CS Form No. 212, Revised 2025
- * Box-based layout matching official CSC format
+ * Generate JobSync: Box-based PDS Form (PDF) document from PDS data
+ * Box-based layout format with structured sections
+ * Provides traditional form-style presentation with clearly defined boxes
  *
  * @param pdsData - The PDS data to export
  * @param includeSignature - Whether to include the digital signature image
@@ -1362,7 +1362,9 @@ export async function generateCSCFormatPDF(
   if (returnDoc) {
     return doc;
   } else {
-    const filename = `PDS_CSC_Format_${pdsData.personalInfo?.surname || 'Unknown'}_${new Date().toISOString().split('T')[0]}.pdf`;
+    const surname = (pdsData.personalInfo?.surname || 'Unknown').toUpperCase().replace(/\s+/g, '_');
+    const firstName = (pdsData.personalInfo?.firstName || 'User').toUpperCase().replace(/\s+/g, '_');
+    const filename = `PDS_BoxBased_${surname}_${firstName}_2025.pdf`;
     doc.save(filename);
   }
 }

@@ -66,7 +66,8 @@ export async function GET(
     const applicantName = applicantProfile?.full_name || 'Unknown Applicant';
 
     // Read format, includeSignature and useCurrentDate from query parameters
-    const format = request.nextUrl.searchParams.get('format') || 'modern'; // 'csc' | 'modern' | 'excel'
+    // Format options: 'modern' (Simple PDF), 'csc' (Box-based PDF), 'excel' (Official CSC 2025)
+    const format = request.nextUrl.searchParams.get('format') || 'modern';
     const includeSignature = request.nextUrl.searchParams.get('includeSignature') === 'true';
     const useCurrentDate = request.nextUrl.searchParams.get('useCurrentDate') === 'true';
 
@@ -124,10 +125,10 @@ export async function GET(
     const pdfBuffer = doc.output('arraybuffer');
 
     // Create filename with format indicator
-    const surname = pdsData.personal_info?.surname || applicantName.split(' ')[0] || 'Unknown';
-    const firstName = pdsData.personal_info?.firstName || applicantName.split(' ').slice(1).join('_') || 'User';
-    const formatLabel = format === 'csc' ? 'CSC' : 'Modern';
-    const fileName = `PDS_${formatLabel}_${surname}_${firstName}_${new Date().getTime()}.pdf`;
+    const surname = (pdsData.personal_info?.surname || applicantName.split(' ')[0] || 'Unknown').toUpperCase().replace(/\s+/g, '_');
+    const firstName = (pdsData.personal_info?.firstName || applicantName.split(' ').slice(1).join('_') || 'User').toUpperCase().replace(/\s+/g, '_');
+    const formatLabel = format === 'csc' ? 'BoxBased' : 'Simple';
+    const fileName = `PDS_${formatLabel}_${surname}_${firstName}_2025.pdf`;
 
     // Return PDF as downloadable file
     return new NextResponse(pdfBuffer, {
