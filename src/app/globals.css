@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* JobSync Custom Colors */
+  --primary-green: #22A555;
+  --primary-green-dark: #1A7F3E;
+  --light-green: #D4F4DD;
+  --teal: #20C997;
+  --yellow: #FDB912;
+  --red: #DC3545;
+  --light-gray: #F5F5F5;
+  --gray: #6C757D;
+  --dark-gray: #343A40;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* JobSync Theme Colors */
+  --color-primary: var(--primary-green);
+  --color-primary-dark: var(--primary-green-dark);
+  --color-primary-light: var(--light-green);
+  --color-teal: var(--teal);
+  --color-success: var(--primary-green);
+  --color-warning: var(--yellow);
+  --color-danger: var(--red);
+  --color-gray-50: var(--light-gray);
+  --color-gray-500: var(--gray);
+  --color-gray-900: var(--dark-gray);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Screen Reader Only Class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
