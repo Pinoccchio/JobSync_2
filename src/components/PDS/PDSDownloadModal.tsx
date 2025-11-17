@@ -111,12 +111,12 @@ export function PDSDownloadModal({ isOpen, onClose, pdsId }: PDSDownloadModalPro
                   }`} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Official CSC Format</h4>
+                  <h4 className="font-semibold text-gray-900">Official CSC PDS Form 2025</h4>
                   <p className="text-xs text-gray-600 mt-1">
                     CS Form 212, Revised 2025
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Box-based layout matching official CSC template
+                    Official government format
                   </p>
                 </div>
                 {selectedFormat === 'csc' && (
@@ -145,12 +145,12 @@ export function PDSDownloadModal({ isOpen, onClose, pdsId }: PDSDownloadModalPro
                   }`} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">Modern PDF</h4>
+                  <h4 className="font-semibold text-gray-900">JobSync: Simple PDS Form (PDF)</h4>
                   <p className="text-xs text-gray-600 mt-1">
-                    JobSync Layout
+                    Clean & Modern Layout
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    Clean table design
+                    Streamlined table design
                   </p>
                 </div>
                 {selectedFormat === 'modern' && (
