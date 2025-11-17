@@ -4,6 +4,7 @@
  */
 
 import XlsxPopulate from 'xlsx-populate';
+import { join } from 'path';
 import {
   SHEET_C1_MAPPING,
   SHEET_C2_MAPPING,
@@ -15,7 +16,8 @@ import {
 } from './excelMapper';
 import type { PDSData } from '@/types/pds.types';
 
-const TEMPLATE_PATH = './public/templates/PDS_2025_Template.xlsx';
+// Use absolute path for Vercel compatibility (serverless environments have unpredictable working directories)
+const TEMPLATE_PATH = join(process.cwd(), 'public/templates/PDS_2025_Template.xlsx');
 
 type CellValue = string | number | boolean | Date | null | undefined;
 
@@ -42,12 +44,19 @@ interface XlsxWorkbook {
 export async function loadPDSTemplate(): Promise<XlsxWorkbook> {
   try {
     console.log('📂 Loading PDS template with xlsx-populate...');
+    console.log(`   Template path: ${TEMPLATE_PATH}`);
+    console.log(`   Working directory: ${process.cwd()}`);
+
     const workbook = await XlsxPopulate.fromFileAsync(TEMPLATE_PATH);
+
     console.log('✅ PDS template loaded successfully');
     console.log(`   Sheets found: ${workbook.sheets().map((s: XlsxSheet) => s.name()).join(', ')}`);
     return workbook as unknown as XlsxWorkbook;
   } catch (error) {
     console.error('❌ Failed to load template:', error);
+    console.error(`   Attempted path: ${TEMPLATE_PATH}`);
+    console.error(`   Working directory: ${process.cwd()}`);
+    console.error(`   Node version: ${process.version}`);
     throw new Error(
       `Template loading failed: ${error instanceof Error ? error.message : String(error)}`
     );

@@ -4,8 +4,6 @@ import { generatePDSPDF } from '@/lib/pds/pdfGenerator';
 import { generateCSCFormatPDF } from '@/lib/pds/pdfGeneratorCSC';
 import { generatePDSExcel, generatePDSFilename } from '@/lib/pds/pdsExcelGenerator';
 import { transformPDSFromDatabase } from '@/lib/utils/dataTransformers';
-import fs from 'fs';
-import path from 'path';
 
 export async function GET(
   request: NextRequest,

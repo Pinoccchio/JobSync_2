@@ -1,0 +1,14 @@
+{
+  "functions": {
+    "src/app/api/pds/*/download/route.ts": {
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "src/app/api/**/*.ts": {
+      "memory": 512,
+      "maxDuration": 10
+    }
+  },
+  "buildCommand": "npm run build",
+  "framework": "nextjs"
+}
