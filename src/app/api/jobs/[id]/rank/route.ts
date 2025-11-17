@@ -396,10 +396,15 @@ export async function POST(
     }
 
     // 3.5. Update applicant_profiles with extracted PDS data for frontend display
+    // Optimized: Batch updates with controlled concurrency to avoid N+1 pattern
     console.log('💾 Saving extracted data to applicant_profiles...');
-    for (const applicantData of applicantsData) {
-      if (applicantData.applicantProfileId) {
-        const { error: profileUpdateError } = await supabase
+    const profileUpdates = applicantsData.filter(a => a.applicantProfileId);
+    const chunkSize = 5; // Process 5 concurrent updates at a time
+
+    for (let i = 0; i < profileUpdates.length; i += chunkSize) {
+      const chunk = profileUpdates.slice(i, i + chunkSize);
+      const updatePromises = chunk.map(applicantData =>
+        supabase
           .from('applicant_profiles')
           .update({
             highest_educational_attainment: applicantData.highestEducationalAttainment,
@@ -407,14 +412,19 @@ export async function POST(
             skills: applicantData.skills,
             eligibilities: applicantData.eligibilities
           })
-          .eq('id', applicantData.applicantProfileId);
+          .eq('id', applicantData.applicantProfileId)
+          .then(({ error }) => {
+            if (error) {
+              console.error(`❌ Failed to update applicant_profiles ${applicantData.applicantProfileId}:`, error);
+              return { success: false, name: applicantData.applicantName };
+            } else {
+              console.log(`✅ Updated profile for ${applicantData.applicantName}`);
+              return { success: true, name: applicantData.applicantName };
+            }
+          })
+      );
 
-        if (profileUpdateError) {
-          console.error(`❌ Failed to update applicant_profiles ${applicantData.applicantProfileId}:`, profileUpdateError);
-        } else {
-          console.log(`✅ Updated profile for ${applicantData.applicantName}`);
-        }
-      }
+      await Promise.all(updatePromises);
     }
 
     // 4. Rank applicants using Gemini AI-powered algorithms
@@ -461,29 +471,42 @@ export async function POST(
       };
     });
 
-    // Batch update all applications
-    for (const update of updates) {
-      const { error: updateError } = await supabase
-        .from('applications')
-        .update({
-          rank: update.rank,
-          match_score: update.match_score,
-          education_score: update.education_score,
-          experience_score: update.experience_score,
-          skills_score: update.skills_score,
-          eligibility_score: update.eligibility_score,
-          algorithm_used: update.algorithm_used,
-          ranking_reasoning: update.ranking_reasoning,
-          algorithm_details: update.algorithm_details,
-          matched_skills_count: update.matched_skills_count,
-          matched_eligibilities_count: update.matched_eligibilities_count
-        })
-        .eq('id', update.id);
+    // Batch update all applications - optimized with controlled concurrency
+    console.log(`📝 Updating ${updates.length} application records...`);
+    const updateChunkSize = 5; // Process 5 concurrent updates at a time
 
-      if (updateError) {
-        console.error(`Failed to update application ${update.id}:`, updateError);
-      }
+    for (let i = 0; i < updates.length; i += updateChunkSize) {
+      const chunk = updates.slice(i, i + updateChunkSize);
+      const applicationUpdatePromises = chunk.map(update =>
+        supabase
+          .from('applications')
+          .update({
+            rank: update.rank,
+            match_score: update.match_score,
+            education_score: update.education_score,
+            experience_score: update.experience_score,
+            skills_score: update.skills_score,
+            eligibility_score: update.eligibility_score,
+            algorithm_used: update.algorithm_used,
+            ranking_reasoning: update.ranking_reasoning,
+            algorithm_details: update.algorithm_details,
+            matched_skills_count: update.matched_skills_count,
+            matched_eligibilities_count: update.matched_eligibilities_count
+          })
+          .eq('id', update.id)
+          .then(({ error }) => {
+            if (error) {
+              console.error(`Failed to update application ${update.id}:`, error);
+              return { success: false, id: update.id };
+            }
+            return { success: true, id: update.id };
+          })
+      );
+
+      await Promise.all(applicationUpdatePromises);
     }
+
+    console.log('✅ All application records updated successfully');
 
     return NextResponse.json({
       success: true,

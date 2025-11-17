@@ -126,6 +126,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status'); // pending, approved, denied
 
     // 4. Build query based on role
+    // Optimized SELECT - fetch only essential fields for list view
+    // Large arrays (education, work_experience, etc.) fetched separately when needed
     let query = supabase
       .from('applications')
       .select(`
@@ -163,12 +165,7 @@ export async function GET(request: NextRequest) {
           location,
           employment_type,
           status,
-          created_at,
-          profiles:created_by (
-            id,
-            full_name,
-            role
-          )
+          created_at
         ),
         applicant_profiles:applicant_profile_id (
           id,
@@ -178,26 +175,14 @@ export async function GET(request: NextRequest) {
           middle_name,
           phone_number,
           mobile_number,
-          education,
-          work_experience,
-          eligibilities,
-          skills,
           total_years_experience,
           highest_educational_attainment,
-          ocr_processed,
-          profiles:user_id (
-            email,
-            profile_image_url
-          )
+          ocr_processed
         ),
         applicant_pds:pds_id (
           id,
           signature_url,
-          signature_uploaded_at,
-          educational_background,
-          work_experience,
-          eligibility,
-          other_information
+          signature_uploaded_at
         )
       `)
       .order('created_at', { ascending: false });
@@ -264,9 +249,19 @@ export async function GET(request: NextRequest) {
     const { data: applications, error } = await query;
 
     if (error) {
-      console.error('Error fetching applications:', error);
+      const errorMessage = error.message || error.details || 'Failed to fetch applications from database';
+      console.error('Error fetching applications:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return NextResponse.json(
-        { success: false, error: error.message },
+        {
+          success: false,
+          error: errorMessage,
+          code: error.code || 'UNKNOWN_ERROR'
+        },
         { status: 500 }
       );
     }

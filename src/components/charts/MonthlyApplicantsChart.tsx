@@ -19,35 +19,24 @@ export const MonthlyApplicantsChart: React.FC = () => {
 
   const fetchMonthlyData = async () => {
     try {
-      // Fetch all applications
-      const { data: applications, error } = await supabase
-        .from('applications')
-        .select('created_at');
+      // Optimized: Fetch from server-side aggregated API endpoint
+      // This reduces data transfer from 10,000+ rows to ~12 aggregated rows
+      const response = await fetch('/api/hr/dashboard/charts?type=monthly');
+      const result = await response.json();
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch monthly data');
+      }
 
-      // Group by month
-      const monthCounts: Record<string, number> = {};
-
-      applications?.forEach((app) => {
-        const date = new Date(app.created_at);
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
+      // Transform API response to chart format
+      const monthlyData = result.data.map((item: { month: string; count: number }) => {
+        const [year, month] = item.month.split('-');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return {
+          month: `${monthNames[parseInt(month) - 1]} ${year}`,
+          applications: item.count,
+        };
       });
-
-      // Convert to array and sort chronologically
-      const monthlyData = Object.entries(monthCounts)
-        .map(([monthKey, count]) => {
-          const [year, month] = monthKey.split('-');
-          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-          return {
-            month: `${monthNames[parseInt(month) - 1]} ${year}`,
-            applications: count,
-            sortKey: monthKey,
-          };
-        })
-        .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
-        .map(({ month, applications }) => ({ month, applications }));
 
       setData(monthlyData);
     } catch (error) {

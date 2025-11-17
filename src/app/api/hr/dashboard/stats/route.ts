@@ -57,9 +57,19 @@ export async function GET(request: NextRequest) {
     const { data: jobs, error: jobsError } = await jobsQuery;
 
     if (jobsError) {
-      console.error('Error fetching jobs:', jobsError);
+      const errorMessage = jobsError.message || jobsError.details || 'Failed to fetch jobs from database';
+      console.error('Error fetching jobs:', {
+        message: jobsError.message,
+        details: jobsError.details,
+        hint: jobsError.hint,
+        code: jobsError.code
+      });
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch jobs' },
+        {
+          success: false,
+          error: errorMessage,
+          code: jobsError.code || 'UNKNOWN_ERROR'
+        },
         { status: 500 }
       );
     }
@@ -95,9 +105,19 @@ export async function GET(request: NextRequest) {
     const { data: applications, error: appsError } = await applicationsQuery;
 
     if (appsError) {
-      console.error('Error fetching applications:', appsError);
+      const errorMessage = appsError.message || appsError.details || 'Failed to fetch applications from database';
+      console.error('Error fetching applications:', {
+        message: appsError.message,
+        details: appsError.details,
+        hint: appsError.hint,
+        code: appsError.code
+      });
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch applications' },
+        {
+          success: false,
+          error: errorMessage,
+          code: appsError.code || 'UNKNOWN_ERROR'
+        },
         { status: 500 }
       );
     }

@@ -30,37 +30,22 @@ export const JobMatchedChart: React.FC = () => {
 
   const fetchJobData = async () => {
     try {
-      // Fetch all applications with job information
-      const { data: applications, error } = await supabase
-        .from('applications')
-        .select(`
-          job_id,
-          jobs (
-            title
-          )
-        `);
+      // Optimized: Fetch from server-side aggregated API endpoint
+      // This reduces data transfer from 10,000+ rows with JOINs to ~8-10 aggregated rows
+      const response = await fetch('/api/hr/dashboard/charts?type=by-job');
+      const result = await response.json();
 
-      if (error) throw error;
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch job data');
+      }
 
-      // Count applications per job
-      const jobCounts: Record<string, { title: string; count: number }> = {};
-
-      applications?.forEach((app: any) => {
-        const jobTitle = app.jobs?.title || 'Unknown Job';
-        if (!jobCounts[jobTitle]) {
-          jobCounts[jobTitle] = { title: jobTitle, count: 0 };
-        }
-        jobCounts[jobTitle].count++;
-      });
-
-      // Convert to array, sort by count descending, take top 8
-      const jobData = Object.values(jobCounts)
-        .map(({ title, count }) => ({
-          jobTitle: title.length > 30 ? title.substring(0, 30) + '...' : title,
-          applications: count,
-        }))
-        .sort((a, b) => b.applications - a.applications)
-        .slice(0, 8);
+      // Transform API response to chart format
+      const jobData = result.data
+        .slice(0, 8) // Top 8 jobs
+        .map((item: { job_title: string; count: number }) => ({
+          jobTitle: item.job_title.length > 30 ? item.job_title.substring(0, 30) + '...' : item.job_title,
+          applications: item.count,
+        }));
 
       setData(jobData);
     } catch (error) {

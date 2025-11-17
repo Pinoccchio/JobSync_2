@@ -97,9 +97,19 @@ export async function GET(request: NextRequest) {
     const { data: programs, error } = await query;
 
     if (error) {
-      console.error('Error fetching training programs:', error);
+      const errorMessage = error.message || error.details || 'Failed to fetch training programs from database';
+      console.error('Error fetching training programs:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return NextResponse.json(
-        { success: false, error: error.message },
+        {
+          success: false,
+          error: errorMessage,
+          code: error.code || 'UNKNOWN_ERROR'
+        },
         { status: 500 }
       );
     }
